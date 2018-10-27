@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <style>
+  div.floatLeft { width: 10%; float: left; }
+  div.floatRight {width: 90%; float: right; }
+  div.container { overflow: hidden; }
+ </style>
+ <script type="text/javascript">
+    function fale(texto)
+    {
+	speaks = [
+	  {
+	    "name": "Alex",
+	    "lang": "en-US"
+	  },
+	  {
+	    "name": "Joana",
+	    "lang": "pt-PT"
+	  },
+	  
+	  {
+	    "name": "Eduardo",
+	    "lang": "pt-BR"
+	  }  
+	];
+	var msg = new SpeechSynthesisUtterance();
+	msg.volume = 1;//parseFloat(volumeInput.value); // 0 to 1
+	msg.rate = 1;//parseFloat(rateInput.value); // 0.1 to 10
+	msg.pitch = 1;////parseFloat(pitchInput.value); // 0 to 2
+	msg.text  = texto;
+	var voice = speaks[1];
+	console.log(`Voice: ${voice.name} and Lang: ${voice.lang}`);
+	msg.voiceURI = voice.name;
+	msg.lang = voice.lang;
+	speechSynthesis.speak(msg);
+     }
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='html2canvas.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jspdf.min.js') }}"></script>
+    <script>
+     function genPDF()
+     {
+      html2canvas(document.getElementById("html2canvasBody"),
+      {
+       onrendered: function(canvas)
+       {
+         var base64image = canvas.toDataURL("image/png");
+         var doc = new jsPDF();
+         doc.addImage(base64image,"JPEG", 0, 0);
+         doc.save('carteirinha.pdf');
+       }
+      });
+     }
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIGA</title>
+    <link rel="stylesheet" href="../static/bootstrap.css">
+</head>
+<body>
+    <script>
+     fale("Sua carteirinha está pronta {{ x.nome }}");
+    </script>
+    <div class="container" id="html2canvasBody">
+      <div class="page-header">
+          <h1>{{ titulo }}</h1>
+      </div>
+      {% block conteudo %}{% endblock %}
+    </div>
+    <script>
+     fale("Digite p para gerar o pdf");
+    </script>
+    <script>
+     fale("Digite l para sair da página");
+    </script>
+    <p><h1>Bem vindo!</h1></p>
+    <input id="pdf"type="button" value = "Download PDF" onclick="location.href='javascript:genPDF()';"/>
+    <input id="logout"type="button" value = "Logout" onclick="location.href='{{ url_for('logout') }}';"/>
+    <input id="input" type="text" autofocus></p>
+     <script>
+       var input = document.getElementById("input");
+       input.addEventListener("keyup", function(event) {
+       event.preventDefault();
+       var aux = event.keyCode;
+       if (aux === 80 || aux === 112){
+        document.getElementById("pdf").click();
+        document.getElementById("input").focus();
+       }
+       else if (aux === 76 || aux === 108){
+        document.getElementById("logout").click();
+       }
+     });	     
+    </script>
+</body>
+</html>
